@@ -31,3 +31,6 @@ class ChangeLog(db.Model):
 
 # this is a test to make sure the github repo is working
 # Add any additional models here as needed
+
+#comment recieved on main pc, pushing from main pc to laptop
+#hopefully this works....
