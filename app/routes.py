@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from .forms import LoginForm, RegisterForm, AssetForm
 from .models import User, ADAEntry, ChangeLog
@@ -11,7 +11,31 @@ main = Blueprint('main', __name__)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-@main.route('/', methods=['GET', 'POST'])
+# ============================
+# STARTUP INTERFACE
+# ============================
+
+@main.route('/')
+def index():
+    if current_app.config.get("DEBUG_BYPASS_STARTUP"):
+        return redirect(url_for('main.login'))
+    return redirect(url_for('main.startup'))
+
+@main.route('/startup', methods=['GET', 'POST'])
+def startup():
+    if request.method == 'POST':
+        answer = request.form.get('answer', '').strip().lower()
+        if answer == 'only at the blind':
+            return redirect(url_for('main.login'))
+        flash('ACCESS DENIED: Authorization phrase invalid.')
+        return redirect(url_for('main.startup'))
+    return render_template('startup.html')
+
+# ============================
+# AUTHENTICATION
+# ============================
+
+@main.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -19,34 +43,57 @@ def login():
         if user and user.password == form.password.data:
             login_user(user)
             return redirect(url_for('main.dashboard'))
-        else:
-            flash('Invalid username or password')
+        flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        existing_user = User.query.filter_by(username=form.username.data).first()
-        if existing_user:
+        if User.query.filter_by(username=form.username.data).first():
             flash('Username already exists.')
             return redirect(url_for('main.register'))
 
-        new_user = User(username=form.username.data,
-                        password=form.password.data,
-                        clearance=form.clearance.data,
-                        role='regular')
+        new_user = User(
+            username=form.username.data,
+            password=form.password.data,
+            clearance=form.clearance.data,
+            role='regular'
+        )
         db.session.add(new_user)
         db.session.commit()
         flash('Account created! You can now log in.')
         return redirect(url_for('main.login'))
     return render_template('register.html', form=form)
 
+@main.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.login'))
+
+# ============================
+# DASHBOARD + ASSET VIEW
+# ============================
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
     entries = ADAEntry.query.filter(ADAEntry.clearance_level <= current_user.clearance).all()
     return render_template('dashboard.html', user=current_user, entries=entries)
+
+@main.route('/asset/<int:asset_id>')
+@login_required
+def view_asset(asset_id):
+    asset = ADAEntry.query.get_or_404(asset_id)
+    if current_user.clearance < asset.clearance_level:
+        flash("Insufficient clearance.")
+        return redirect(url_for('main.dashboard'))
+    return render_template('asset_detail.html', asset=asset)
+
+# ============================
+# ASSET CREATION / EDITING
+# ============================
 
 @main.route('/add-asset', methods=['GET', 'POST'])
 @login_required
@@ -71,17 +118,6 @@ def add_asset():
         return redirect(url_for('main.dashboard'))
 
     return render_template('add_asset.html', form=form, edit=False)
-
-@main.route('/asset/<int:asset_id>')
-@login_required
-def view_asset(asset_id):
-    asset = ADAEntry.query.get_or_404(asset_id)
-
-    if current_user.clearance < asset.clearance_level:
-        flash("Insufficient clearance.")
-        return redirect(url_for('main.dashboard'))
-
-    return render_template('asset_detail.html', asset=asset)
 
 @main.route('/edit-asset/<int:asset_id>', methods=['GET', 'POST'])
 @login_required
@@ -123,11 +159,9 @@ def delete_asset(asset_id):
     flash("Asset deleted.")
     return redirect(url_for('main.dashboard'))
 
-@main.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('main.login'))
+# ============================
+# ADMIN PANEL
+# ============================
 
 @main.route('/admin-panel')
 @login_required
@@ -147,17 +181,15 @@ def edit_user(user_id):
         return redirect(url_for('main.dashboard'))
 
     user = User.query.get_or_404(user_id)
-
     if request.method == 'POST':
         user.username = request.form['username']
         user.clearance = int(request.form['clearance'])
         user.role = request.form['role']
         db.session.commit()
-        flash('User updated.')
+        flash("User updated.")
         return redirect(url_for('main.admin_panel'))
 
     return render_template('edit_user.html', user=user)
-
 
 @main.route('/delete-user/<int:user_id>')
 @login_required
@@ -175,5 +207,3 @@ def delete_user(user_id):
     db.session.commit()
     flash("User deleted.")
     return redirect(url_for('main.admin_panel'))
-
-
