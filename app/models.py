@@ -27,3 +27,7 @@ class ChangeLog(db.Model):
 
     asset = db.relationship('ADAEntry', backref='changelog')
     editor = db.relationship('User')
+
+
+# this is a test to make sure the github repo is working
+# Add any additional models here as needed
