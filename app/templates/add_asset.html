@@ -31,7 +31,11 @@
         {{ form.clearance_level(class="form-select") }}
       </div>
       <div class="d-grid">
-        {{ form.submit(class="btn btn-success") }}
+        {% if edit %}
+  {{ form.submit(class="btn btn-warning", value='Update Entry') }}
+{% else %}
+  {{ form.submit(class="btn btn-success", value='Create Entry') }}
+{% endif %}
       </div>
     </form>
     <div class="mt-3">

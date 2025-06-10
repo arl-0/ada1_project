@@ -70,7 +70,7 @@ def add_asset():
         flash('New ADA entry created.')
         return redirect(url_for('main.dashboard'))
 
-    return render_template('add_asset.html', form=form)
+    return render_template('add_asset.html', form=form, edit=False)
 
 @main.route('/asset/<int:asset_id>')
 @login_required
@@ -138,3 +138,42 @@ def admin_panel():
 
     users = User.query.all()
     return render_template('admin_panel.html', users=users)
+
+@main.route('/edit-user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    if current_user.role != 'admin':
+        flash("Admins only.")
+        return redirect(url_for('main.dashboard'))
+
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        user.username = request.form['username']
+        user.clearance = int(request.form['clearance'])
+        user.role = request.form['role']
+        db.session.commit()
+        flash('User updated.')
+        return redirect(url_for('main.admin_panel'))
+
+    return render_template('edit_user.html', user=user)
+
+
+@main.route('/delete-user/<int:user_id>')
+@login_required
+def delete_user(user_id):
+    if current_user.role != 'admin':
+        flash("Admins only.")
+        return redirect(url_for('main.dashboard'))
+
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash("You cannot delete your own account.")
+        return redirect(url_for('main.admin_panel'))
+
+    db.session.delete(user)
+    db.session.commit()
+    flash("User deleted.")
+    return redirect(url_for('main.admin_panel'))
+
+

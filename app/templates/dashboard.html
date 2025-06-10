@@ -7,6 +7,15 @@
 </head>
 <body class="bg-dark text-white">
   <div class="container mt-5">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-success text-center">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
     <div class="text-center mb-4">
       <h2>Welcome, {{ user.username }}!</h2>
       <p class="lead">
