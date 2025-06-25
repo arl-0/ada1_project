@@ -14,7 +14,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'make_more_secure_later'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ada1.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['DEBUG_BYPASS_STARTUP'] = True  # Toggle this for development
+    app.config['DEBUG_BYPASS_STARTUP'] = False  # Toggle this for development
 
 
     # Initialize extension within app

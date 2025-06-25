@@ -7,7 +7,7 @@
   <style>
     body {
       background-color: black;
-      color: #33ff33;
+      color: #ffffff;
       font-family: monospace;
       padding: 20px;
     }
@@ -48,7 +48,7 @@
 
     function typeLine() {
       if (index < bootMessages.length) {
-        log.textContent += bootMessages[index] + '\\n';
+        log.innerHTML += bootMessages[index] + '<br>';
         index++;
         setTimeout(typeLine, 800);  // speed of message display
       } else {

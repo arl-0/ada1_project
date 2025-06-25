@@ -2,59 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>ADA-1 Dashboard</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <title>ADA-1 CLI Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      color: #a82f1f;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .terminal-box {
+      border: 2px solid #ffffff;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .btn-terminal {
+      background: none;
+      border: 1px solid #a82f1f;
+      color: #a82f1f;
+    }
+    .btn-terminal:hover {
+      background-color: #8f1f0c;
+      color: black;
+    }
+    hr {
+      border-color: #a82f1f;
+    }
+  </style>
 </head>
-<body class="bg-dark text-white">
-  <div class="container mt-5">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-success text-center">
-          {% for message in messages %}
-            <p>{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+<body>
+  <div class="container py-5">
     <div class="text-center mb-4">
-      <h2>Welcome, {{ user.username }}!</h2>
-      <p class="lead">
-        Clearance Level: <strong>{{ user.clearance }}</strong><br>
-        Role: <strong>{{ user.role|capitalize }}</strong>
-      </p>
+      <h2>ADA-1 SYSTEM TERMINAL</h2>
+      <p>Clearance Level: <strong>{{ user.clearance }}</strong> | Role: <strong>{{ user.role|capitalize }}</strong></p>
+      <div class="btn-group mt-3">
+        <a href="{{ url_for('main.logout') }}" class="btn btn-terminal btn-sm">Logout</a>
+        {% if user.role == 'admin' %}
+          <a href="{{ url_for('main.add_asset') }}" class="btn btn-terminal btn-sm">[New Entry]</a>
+          <a href="{{ url_for('main.admin_panel') }}" class="btn btn-terminal btn-sm">[Admin Panel]</a>
+        {% endif %}
+      </div>
     </div>
 
-    <div class="mb-4 text-center">
-      <a href="{{ url_for('main.logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+    <hr>
+
+    {% for entry in entries %}
+    <div class="terminal-box">
+      <strong>{{ entry.asset_number }} - {{ entry.title }}</strong><br>
+      Required Clearance: Level {{ entry.clearance_level }}<br><br>
+      {{ entry.redacted_text }}<br><br>
+      <a href="{{ url_for('main.view_asset', asset_id=entry.id) }}" class="btn btn-terminal btn-sm">[View]</a>
       {% if user.role == 'admin' %}
-        <a href="{{ url_for('main.add_asset') }}" class="btn btn-success btn-sm">Create New ADA Document</a>
-        <a href="{{ url_for('main.admin_panel') }}" class="btn btn-outline-info btn-sm">Admin Panel</a>
+        <a href="{{ url_for('main.edit_asset', asset_id=entry.id) }}" class="btn btn-terminal btn-sm">[Edit]</a>
+        <a href="{{ url_for('main.delete_asset', asset_id=entry.id) }}" class="btn btn-terminal btn-sm">[Delete]</a>
       {% endif %}
     </div>
-
-    <h4 class="mb-3">Accessible ADA Documents</h4>
-    {% if entries %}
-      <div class="list-group">
-        {% for entry in entries %}
-          <div class="list-group-item list-group-item-action bg-secondary text-white mb-2">
-            <h5>
-              <a href="{{ url_for('main.view_asset', asset_id=entry.id) }}" class="text-white text-decoration-none">
-                {{ entry.asset_number }} – {{ entry.title }}
-              </a>
-            </h5>
-            <p>{{ entry.redacted_text }}</p>
-            <small>Clearance Required: {{ entry.clearance_level }}</small><br>
-            {% if user.role == 'admin' %}
-              <a href="{{ url_for('main.edit_asset', asset_id=entry.id) }}" class="btn btn-sm btn-warning mt-2">Edit</a>
-              <a href="{{ url_for('main.delete_asset', asset_id=entry.id) }}" class="btn btn-sm btn-danger mt-2"
-                 onclick="return confirm('Are you sure you want to delete this entry?');">Delete</a>
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="alert alert-info">No documents available at your clearance level.</div>
-    {% endif %}
+    {% endfor %}
   </div>
 </body>
 </html>
