@@ -11,9 +11,9 @@ main = Blueprint('main', __name__)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ============================
+# ==============================================================
 # STARTUP INTERFACE
-# ============================
+# ==============================================================
 
 @main.route('/')
 def index():
@@ -31,9 +31,9 @@ def startup():
         return redirect(url_for('main.startup'))
     return render_template('startup.html')
 
-# ============================
+# ==============================================================
 # AUTHENTICATION
-# ============================
+# ==============================================================
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -72,9 +72,9 @@ def logout():
     logout_user()
     return redirect(url_for('main.login'))
 
-# ============================
+# ==============================================================
 # DASHBOARD + ASSET VIEW
-# ============================
+# ==============================================================
 
 @main.route('/dashboard')
 @login_required
@@ -91,9 +91,9 @@ def view_asset(asset_id):
         return redirect(url_for('main.dashboard'))
     return render_template('asset_detail.html', asset=asset)
 
-# ============================
+# ==============================================================
 # ASSET CREATION / EDITING
-# ============================
+# ==============================================================
 
 @main.route('/add-asset', methods=['GET', 'POST'])
 @login_required
@@ -159,9 +159,9 @@ def delete_asset(asset_id):
     flash("Asset deleted.")
     return redirect(url_for('main.dashboard'))
 
-# ============================
+# ==============================================================
 # ADMIN PANEL
-# ============================
+# ==============================================================
 
 @main.route('/admin-panel')
 @login_required

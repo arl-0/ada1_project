@@ -29,8 +29,14 @@ class ChangeLog(db.Model):
     editor = db.relationship('User')
 
 
+
+# 12/06/25 4:32pm
 # this is a test to make sure the github repo is working
 # Add any additional models here as needed
 
+# 12/06/25 5:18pm
 #comment recieved on main pc, pushing from main pc to laptop
 #hopefully this works....
+
+# 12/06/25 11:44pm
+# awesome, version control works. ensure to delete comments for review.
