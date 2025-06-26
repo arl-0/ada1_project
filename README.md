@@ -1,3 +1,8 @@
+As proof of concept, as partly as stress testing, debugging and general user experience, I had several users attempt to register an account and create entires on the ADA platform.
+Entires and accounts beyond the admin test account and first entry are proof of concept realtional database entries to meet the criteria.
+Please do not take the content seriously. 
+They did find bugs.
+
 
 # ADA-1 (Asset Document Archive 1)
 
