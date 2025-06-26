@@ -1,5 +1,4 @@
-📄 README.md
-markdown
+
 # ADA-1 (Asset Document Archive 1)
 
 **ADA-1** is a secure, web-based archive system for managing and viewing classified documents based on user clearance levels. Built using Flask and SQLite, ADA-1 features a dark, CLI-style interface and strict role-based access control.
