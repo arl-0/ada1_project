@@ -102,7 +102,7 @@ def add_asset():
         flash("You do not have permission to add entries.", "danger")
         return redirect(url_for('main.dashboard'))
 
-    form = ADAEntryForm()
+    form = AssetForm()
 
     if form.validate_on_submit():
         # Regular users can't assign a higher clearance than their own
