@@ -98,12 +98,18 @@ def view_asset(asset_id):
 @main.route('/add-asset', methods=['GET', 'POST'])
 @login_required
 def add_asset():
-    if current_user.role != 'admin':
-        flash("Only admins can add documents.")
+    if current_user.role not in ['admin', 'regular']:
+        flash("You do not have permission to add entries.", "danger")
         return redirect(url_for('main.dashboard'))
 
-    form = AssetForm()
+    form = ADAEntryForm()
+
     if form.validate_on_submit():
+        # Regular users can't assign a higher clearance than their own
+        if form.clearance_level.data > current_user.clearance:
+            flash("You can't assign a clearance level higher than your own.", "danger")
+            return redirect(url_for('main.add_asset'))
+
         new_entry = ADAEntry(
             asset_number=form.asset_number.data,
             title=form.title.data,
@@ -114,10 +120,11 @@ def add_asset():
         )
         db.session.add(new_entry)
         db.session.commit()
-        flash('New ADA entry created.')
+        flash("New ADA entry created successfully.", "success")
         return redirect(url_for('main.dashboard'))
 
-    return render_template('add_asset.html', form=form, edit=False)
+    return render_template("add_asset.html", form=form, edit=False)
+
 
 @main.route('/edit-asset/<int:asset_id>', methods=['GET', 'POST'])
 @login_required
