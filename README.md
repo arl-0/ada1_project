@@ -105,9 +105,7 @@ Edit usernames, roles, and clearance levels
 Delete users (except their own account)
 
 File Structure
-arduino
-Copy
-Edit
+
 ada1/
 ├── app/
 │   ├── __init__.py
